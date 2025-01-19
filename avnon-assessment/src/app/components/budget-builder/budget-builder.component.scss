@@ -1,0 +1,41 @@
+.budget-builder {
+  width: 100%;
+  overflow: auto;
+}
+td,
+tr {
+  border: 1px solid #dddddd;
+  text-align: left;
+  & > div {
+    padding: 5px 8px;
+  }
+}
+.header-title,
+.header-month,
+.category-name,
+.category-title {
+  font-weight: bold;
+}
+.category-name {
+  text-transform: capitalize;
+}
+.blank {
+  border-right: none;
+  padding: 16px;
+}
+.form-control {
+  box-shadow: none;
+  border: none;
+
+  padding-left: 8px;
+  &.form-add {
+    min-width: 250px;
+  }
+}
+#applyAll {
+  background: transparent;
+}
+.modal-dialog {
+  max-width: max-content;
+  margin-top: 18%;
+}

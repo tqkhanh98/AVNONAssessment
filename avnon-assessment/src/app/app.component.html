@@ -1,0 +1,8 @@
+<div class="container pt-3">
+  <h1 class="title">Budget Builder</h1>
+  <date-picker
+    (startDateEmitter)="startDate = $event"
+    (endDateEmitter)="endDate = $event"
+  />
+  <budget-builder [startDate]="startDate" [endDate]="endDate" />
+</div>

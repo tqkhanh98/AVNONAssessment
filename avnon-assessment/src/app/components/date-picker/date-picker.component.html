@@ -1,0 +1,22 @@
+<div class="row my-3">
+  <div class="col-3">
+    <label for="startDate" class="form-label">Start Date</label>
+    <input
+      id="startDate"
+      [(ngModel)]="startDate"
+      type="month"
+      class="form-control"
+      max="{{ endDate }}"
+    />
+  </div>
+  <div class="col-3">
+    <label for="endDate" class="form-label">End Date</label>
+    <input
+      id="endDate"
+      [(ngModel)]="endDate"
+      type="month"
+      class="form-control"
+      min="{{ startDate }}"
+    />
+  </div>
+</div>

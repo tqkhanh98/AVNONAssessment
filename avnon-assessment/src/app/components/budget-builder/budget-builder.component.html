@@ -1,0 +1,281 @@
+<div class="budget-builder">
+  <table class="table">
+    <tr class="table-row">
+      <td class="header-title"><div>Start Period V End Period V</div></td>
+      <td class="header-month" *ngFor="let month of rangeMonth">
+        <div>{{ month | date : "MMMM yyyy" }}</div>
+      </td>
+    </tr>
+    <ng-container
+      [ngTemplateOutlet]="formBudget"
+      [ngTemplateOutletContext]="{
+        form: incomeCategoryForm,
+        typeBudget: Type_Budget.INCOME
+      }"
+    ></ng-container>
+    <ng-container
+      [ngTemplateOutlet]="formBudget"
+      [ngTemplateOutletContext]="{
+        form: expensesCategoryForm,
+        typeBudget: Type_Budget.EXPENSES
+      }"
+    ></ng-container>
+    <tr class="profit-loss">
+      <td><div class="fw-bold">Profit / Loss</div></td>
+      <td *ngFor="let pf of profitLoss">
+        <div>{{ pf }}</div>
+      </td>
+    </tr>
+    <tr class="opening-balance">
+      <td><div class="fw-bold">Opening Balance</div></td>
+      <td *ngFor="let opening of balance.opening">
+        <div>{{ opening }}</div>
+      </td>
+    </tr>
+    <tr class="closing-balance">
+      <td><div class="fw-bold">Closing Balance</div></td>
+      <td *ngFor="let opening of balance.closing">
+        <div>{{ opening }}</div>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<ng-template #formBudget let-form="form" let-typeBudget="typeBudget">
+  <ng-container [formGroup]="form">
+    <tr class="category-title">
+      <div>{{ typeBudget }}</div>
+    </tr>
+    <ng-container formArrayName="categoryList">
+      <ng-container
+        *ngFor="
+          let category of getCategoryList(form)?.controls;
+          index as listIdx
+        "
+      >
+        <ng-container [formGroupName]="listIdx">
+          <tr class="category-name">
+            <div>{{ category.value.categoryName }}</div>
+          </tr>
+          <ng-container formArrayName="subCategoryList">
+            <ng-container
+              *ngFor="
+                let subCategory of getCategorySubList(form, listIdx).controls;
+                index as subListIdx
+              "
+            >
+              <tr class="category-sub" [formGroupName]="subListIdx">
+                <td
+                  class="category-sub-name"
+                  (contextmenu)="
+                    onRightClick(
+                      typeBudget,
+                      listIdx,
+                      subListIdx,
+                      0,
+                      $event,
+                      true
+                    )
+                  "
+                >
+                  <div>{{ subCategory.value.subCategoryName }}</div>
+                </td>
+                <td
+                  class="category-sub-value"
+                  *ngFor="
+                    let value of getValuesList(form, listIdx, subListIdx)
+                      ?.controls;
+                    index as valueIdx
+                  "
+                >
+                  <ng-container formArrayName="values">
+                    <input
+                      (contextmenu)="
+                        onRightClick(
+                          typeBudget,
+                          listIdx,
+                          subListIdx,
+                          valueIdx,
+                          $event
+                        )
+                      "
+                      id="{{
+                        typeBudget +
+                          '-' +
+                          listIdx +
+                          '-' +
+                          subListIdx +
+                          '-' +
+                          valueIdx
+                      }}"
+                      class="form-control"
+                      [formControlName]="valueIdx"
+                      type="text"
+                      (keydown)="
+                        moveCell(
+                          $event,
+                          typeBudget,
+                          listIdx,
+                          subListIdx,
+                          valueIdx
+                        )
+                      "
+                      onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
+                    />
+                  </ng-container>
+                </td>
+              </tr>
+            </ng-container>
+          </ng-container>
+          <tr class="category-sub-name-add">
+            <input
+              class="form-control form-add"
+              placeholder="{{
+                'Add a new ' + category.value.categoryName + ' Category'
+              }}"
+              type="text"
+              (keypress)="onSubCategoryInput(form, $event, listIdx)"
+            />
+          </tr>
+          <tr class="category-sub-total">
+            <ng-container formArrayName="subTotals">
+              <td><div class="fw-bold">Subtotals</div></td>
+              <ng-container
+                *ngFor="
+                  let subTotal of getSubTotals(form, listIdx);
+                  index as subTotalIndex
+                "
+              >
+                <td>
+                  <div>{{ subTotal.value }}</div>
+                </td>
+              </ng-container>
+            </ng-container>
+          </tr>
+
+          <tr>
+            <td class="blank"></td>
+          </tr>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+    <tr class="category-add-new">
+      <input
+        class="form-control form-add"
+        placeholder="Add New Parent Category"
+        type="text"
+        autofocus
+        (keypress)="onCategoryInput(form, $event)"
+      />
+    </tr>
+
+    <tr>
+      <td class="blank"></td>
+    </tr>
+    <tr class="category-total">
+      <td>
+        <div class="fw-bold">{{ typeBudget }} Total</div>
+      </td>
+      <td *ngFor="let totals of getTotals(form)">
+        <div>{{ totals }}</div>
+      </td>
+    </tr>
+    <tr>
+      <td class="blank"></td>
+    </tr>
+  </ng-container>
+</ng-template>
+
+<button
+  type="button "
+  class="btn btn-primary d-none"
+  data-bs-toggle="modal"
+  data-bs-target="#applyAllIncom"
+  #apllyAllIncomBtn
+></button>
+<div
+  class="modal fade"
+  id="applyAllIncom"
+  tabindex="-1"
+  aria-labelledby="applyAllIncomLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        Choose action
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-footer border-0">
+        <button
+          type="button"
+          class="btn btn-danger"
+          data-bs-dismiss="modal"
+          (click)="deleteRow(incomeCategoryForm)"
+        >
+          Delete Row
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-bs-dismiss="modal"
+          (click)="applyAllValue(incomeCategoryForm)"
+        >
+          Apply To All
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<button
+  type="button "
+  class="btn btn-primary d-none"
+  data-bs-toggle="modal"
+  data-bs-target="#applyAllExpenses"
+  #apllyAllExpenseBtn
+></button>
+<div
+  class="modal fade"
+  id="applyAllExpenses"
+  tabindex="-1"
+  aria-labelledby="applyAllExpensesLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        Choose action
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-footer border-0">
+        <button
+          type="button"
+          class="btn btn-danger"
+          data-bs-dismiss="modal"
+          (click)="deleteRow(expensesCategoryForm)"
+        >
+          Delete Row
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-bs-dismiss="modal"
+          (click)="applyAllValue(expensesCategoryForm)"
+        >
+          Apply To All
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
