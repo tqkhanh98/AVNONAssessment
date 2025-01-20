@@ -17,6 +17,8 @@ export class BudgetBuilderComponent implements OnInit, OnChanges {
   @Input() endDate: Date | string = '';
   @ViewChild('apllyAllIncomBtn') apllyAllIncomBtn: ElementRef<HTMLElement>
   @ViewChild('apllyAllExpenseBtn') apllyAllExpenseBtn: ElementRef<HTMLElement>
+  @ViewChild('deleteIncomeParent') deleteIncomeParent: ElementRef<HTMLElement>
+  @ViewChild('deleteExpensesParent') deleteExpensesParent: ElementRef<HTMLElement>
   rangeMonth: Array<string> = [];
   incomeCategoryForm: FormGroup;
   expensesCategoryForm: FormGroup;
@@ -203,6 +205,30 @@ export class BudgetBuilderComponent implements OnInit, OnChanges {
       const initValue = Array(this.rangeMonth.length).fill(0);
       (this.getCategoryList(form).controls[this.listI] as any)?.patchValue({
         subTotals: initValue
+      })
+    }
+  }
+
+  rightClickParent(typeBudget: TYPE_BUDGET, listIdx: number, event: any) {
+    event.preventDefault();
+    this.listI = listIdx;
+    switch (typeBudget) {
+      case this.Type_Budget.INCOME:
+        this.deleteIncomeParent.nativeElement.click();
+        break;
+      case this.Type_Budget.EXPENSES:
+        this.deleteExpensesParent.nativeElement.click();
+        break;
+    }
+  }
+
+  deleteParent(form: FormGroup) {
+    const category = this.getCategoryList(form);
+    category.removeAt(this.listI);
+    if (category.value.length == 0) {
+      const initValue = Array(this.rangeMonth.length).fill(0);
+      form.patchValue({
+        totals: [...initValue]
       })
     }
   }

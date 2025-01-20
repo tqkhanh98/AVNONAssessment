@@ -54,7 +54,10 @@
         "
       >
         <ng-container [formGroupName]="listIdx">
-          <tr class="category-name">
+          <tr
+            class="category-name"
+            (contextmenu)="rightClickParent(typeBudget, listIdx, $event)"
+          >
             <div>{{ category.value.categoryName }}</div>
           </tr>
           <ng-container formArrayName="subCategoryList">
@@ -186,96 +189,136 @@
   </ng-container>
 </ng-template>
 
+<!-- Modal actions for income table -->
 <button
   type="button "
   class="btn btn-primary d-none"
   data-bs-toggle="modal"
-  data-bs-target="#applyAllIncom"
+  data-bs-target="#actionsIncome"
   #apllyAllIncomBtn
 ></button>
-<div
-  class="modal fade"
-  id="applyAllIncom"
-  tabindex="-1"
-  aria-labelledby="applyAllIncomLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header border-0">
-        Choose action
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
+<ng-container
+  [ngTemplateOutlet]="modalActions"
+  [ngTemplateOutletContext]="{
+    form: incomeCategoryForm,
+    idModal:'actionsIncome',
+    hideApplyAll: false,
+  }"
+></ng-container>
 
-      <div class="modal-footer border-0">
-        <button
-          type="button"
-          class="btn btn-danger"
-          data-bs-dismiss="modal"
-          (click)="deleteRow(incomeCategoryForm)"
-        >
-          Delete Row
-        </button>
-        <button
-          type="button"
-          class="btn btn-primary"
-          data-bs-dismiss="modal"
-          (click)="applyAllValue(incomeCategoryForm)"
-        >
-          Apply To All
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- Modal actions for expenses table -->
 <button
   type="button "
   class="btn btn-primary d-none"
   data-bs-toggle="modal"
-  data-bs-target="#applyAllExpenses"
+  data-bs-target="#actionsExpenses"
   #apllyAllExpenseBtn
 ></button>
-<div
-  class="modal fade"
-  id="applyAllExpenses"
-  tabindex="-1"
-  aria-labelledby="applyAllExpensesLabel"
-  aria-hidden="true"
+<ng-container
+  [ngTemplateOutlet]="modalActions"
+  [ngTemplateOutletContext]="{
+    form: expensesCategoryForm,
+    idModal: 'actionsExpenses',
+    hideApplyAll: false
+  }"
+></ng-container>
+
+<!-- Modal actions template -->
+<ng-template
+  #modalActions
+  let-form="form"
+  let-hideApplyAll="hideApplyAll"
+  let-idModal="idModal"
 >
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header border-0">
-        Choose action
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-footer border-0">
-        <button
-          type="button"
-          class="btn btn-danger"
-          data-bs-dismiss="modal"
-          (click)="deleteRow(expensesCategoryForm)"
-        >
-          Delete Row
-        </button>
-        <button
-          type="button"
-          class="btn btn-primary"
-          data-bs-dismiss="modal"
-          (click)="applyAllValue(expensesCategoryForm)"
-        >
-          Apply To All
-        </button>
+  <div class="modal fade" [id]="idModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          Choose action
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-footer border-0">
+          <button
+            type="button"
+            class="btn btn-danger"
+            data-bs-dismiss="modal"
+            (click)="deleteRow(form)"
+          >
+            Delete Row
+          </button>
+          <button
+            *ngIf="!hideApplyAll"
+            type="button"
+            class="btn btn-primary"
+            data-bs-dismiss="modal"
+            (click)="applyAllValue(form)"
+          >
+            Apply To All
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+</ng-template>
+
+<button
+  type="button "
+  class="btn btn-primary d-none"
+  data-bs-toggle="modal"
+  data-bs-target="#deleteIncomeParent"
+  #deleteIncomeParent
+></button>
+<ng-container
+  [ngTemplateOutlet]="modalDeleteParent"
+  [ngTemplateOutletContext]="{
+    form: incomeCategoryForm,
+    idModal: 'deleteIncomeParent',
+  }"
+></ng-container>
+<button
+  type="button "
+  class="btn btn-primary d-none"
+  data-bs-toggle="modal"
+  data-bs-target="#deleteExpensesParent"
+  #deleteExpensesParent
+></button>
+<ng-container
+  [ngTemplateOutlet]="modalDeleteParent"
+  [ngTemplateOutletContext]="{
+    form: expensesCategoryForm,
+    idModal: 'deleteExpensesParent',
+  }"
+></ng-container>
+<!-- Modal delete parent row template -->
+<ng-template #modalDeleteParent let-form="form" let-idModal="idModal">
+  <div class="modal fade" [id]="idModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          Are you sure want to delete this row ?
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-footer border-0">
+          <button
+            type="button"
+            class="btn btn-danger w-100"
+            data-bs-dismiss="modal"
+            (click)="deleteParent(form)"
+          >
+            Delete Row
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
