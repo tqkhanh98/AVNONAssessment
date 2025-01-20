@@ -8,5 +8,4 @@
 
 ## cd src
 
-## ng s
-
+## ng s --o
